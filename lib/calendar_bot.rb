@@ -2,12 +2,12 @@ require 'telegram/bot'
 require 'google/apis/calendar_v3'
 
 # Your Telegram bot token
-token = <your_telegram_bot_token>
+token = ENV["TELE_API_TOKEN"]
 
 # Your Google Calendar API credentials
 credentials = Google::Auth::UserRefreshCredentials.new(
-  client_id: <your_client_id>,
-  client_secret: <your_client_secret>,
+  client_id: ENV["GOOG_CLIENT_ID"],
+  client_secret: ENV["GOOG_CLIENT_SECRET"],
   access_token: <your_access_token>,
   refresh_token: <your_refresh_token>,
 )
