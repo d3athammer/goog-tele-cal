@@ -20,9 +20,28 @@ calendar.authorization = credentials
 Telegram::Bot::Client.run(token) do |bot|
   bot.listen do |message|
     # Ask the user for the shared calendar to create an event
-    bot.api.send_message(chat_id: message.chat.id, text: "Which shared calendar would you like to create the event on?")
-    calendar_id = bot.listen do |message|
-      break message.text
+    button_list = []
+    calendar_list = calendar.list_calendar_lists.items
+    calendar_list.first(4).each do |cal|
+      button_list.push(Telegram::Bot::Types::InlineKeyboardButton.new(text: cal.summary, callback_data: cal.id))
+    end
+    button_list.push(Telegram::Bot::Types::InlineKeyboardButton.new(text: "Manually input calendar ID", callback_data: "manual"))
+    markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: button_list)
+    bot.api.send_message(chat_id: message.chat.id, text: "Which shared calendar would you like to create the event on?", reply_markup: markup)
+
+    # Wait for the user to select a calendar
+    calendar_id = bot.listen do |callback|
+      if callback.message
+        break callback.data
+      end
+    end
+
+    # If the user chose to manually input a calendar ID, ask for it
+    if calendar_id == "manual"
+      bot.api.send_message(chat_id: message.chat.id, text: "Please enter the calendar ID:")
+      calendar_id = bot.listen do |input|
+        break input.text
+      end
     end
 
     # Ask the user for the name of the event
@@ -60,11 +79,11 @@ Telegram::Bot::Client.run(token) do |bot|
         summary: event_summary,
         start: Google::Apis::CalendarV3::EventDateTime.new(
           date_time: event_start_time,
-          time_zone: 'UTC'
+          time_zone: 'GMT'
         ),
         end: Google::Apis::CalendarV3::EventDateTime.new(
           date_time: event_end_time,
-          time_zone: 'UTC'
+          time_zone: 'GMT'
         )
       )
     )

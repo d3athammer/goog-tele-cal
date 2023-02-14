@@ -45,6 +45,12 @@ gem "bootsnap", require: false
 # Use Sass to process CSS
 # gem "sassc-rails"
 
+# Faraday to reach your webhook url endpoint
+gem 'faraday'
+
+# Telegram bot
+gem 'telegram-bot-ruby'
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
